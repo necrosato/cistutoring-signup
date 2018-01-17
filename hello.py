@@ -1,6 +1,8 @@
 from flask import Flask, render_template
 from flaskext.mysql import MySQL
 
+from check_functions import *
+
 app = Flask(__name__)
 mysql = MySQL()
 
@@ -29,10 +31,11 @@ def reserve():
 
 @app.route("/sqltest")
 def sqltest():
-    query = 'SELECT * from users'
+    query = "SELECT * from users where name='Naookie Sato'"
     cursor.execute(query)
-    rows = cursor.fetchall()
-    return str(rows)
+    print(valid_user(cursor, 'nsato@cistutoring.com'))
+    print(valid_password(cursor, 'goodpassword'))
+    return "SQL TEST"
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=9000)
