@@ -2,13 +2,13 @@ from flask import Flask, render_template
 app = Flask(__name__)
  
 @app.route("/")
+@app.route("/index")
 def hello():
-    return render_template('signup.html')
+    return render_template('index.html')
 
 @app.route("/signup")
 def signup():
-    print('test')
-    return "Here is where a new tutee can register"
+    return render_template('signup.html')
  
 @app.route("/reserve")
 def reserve():
