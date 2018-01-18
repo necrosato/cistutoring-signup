@@ -1,0 +1,27 @@
+from mysql:
+
+to create the database
+> CREATE DATABASE cistutoring;
+
+to create the users and events tables
+> USE cistutoring;
+
+> CREATE TABLE users
+    (id smallint unsigned not null auto_increment,
+    name varchar(64) not null, 
+    phone varchar(16),
+    privilege smallint insigned default 0 not null,
+    password varchar(41) not null,
+    PRIMARY KEY (id));
+
+> CREATE TABLE events
+    (id int unsigned not null auto_increment,
+    start DATETIME not null,
+    end DATETIME null,
+    uid smallint unsigned,
+    PRIMARY KEY (id),
+    FOREIGN KEY (uid) REFERENCES users(id));
+
+to set the proper end times
+> UPDATE events SET end = DATE_ADD(start, INTERVAL 30 minute);
+
