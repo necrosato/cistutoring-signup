@@ -7,9 +7,9 @@ def valid_user(dbcursor, user):
     else:
         return False
 
-def valid_password(dbcursor, password):
-    query = "SELECT password FROM users WHERE password = PASSWORD(%s)"
-    dbcursor.execute(query, (password,))
+def valid_password(dbcursor, user, password):
+    query = "SELECT password FROM users WHERE password = PASSWORD(%s) and email = %s"
+    dbcursor.execute(query, (password,user,))
     rows = dbcursor.fetchall()
     if (len(rows) == 1):
         return True

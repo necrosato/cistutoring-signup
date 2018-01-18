@@ -34,7 +34,7 @@ def sqltest():
     query = "SELECT * from users where name='Naookie Sato'"
     cursor.execute(query)
     print(valid_user(cursor, 'nsato@cistutoring.com'))
-    print(valid_password(cursor, 'goodpassword'))
+    print(valid_password(cursor, 'nicholasyanez@icloud.com', 'goodpassword'))
     return "SQL TEST"
 
 if __name__ == "__main__":
