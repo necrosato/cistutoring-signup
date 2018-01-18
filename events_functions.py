@@ -23,8 +23,8 @@ def datetime_range_strings(year, month, day, start_hour, end_hour, num_days, wee
 def populate_events_table(dbcursor, year, month, day, start_hour, end_hour, num_days, weekends=True):
     dts = datetime_range_strings(year, month, day, start_hour, end_hour, num_days, weekends)
 
-    check_query = "SELECT id FROM events WHERE start=%s"
-    query = "INSERT INTO events (start) VALUES (%s)"
+    check_query = "SELECT id FROM events WHERE start=?"
+    query = "INSERT INTO events (start) VALUES (?)"
     for dtl in dts:
         for dt in dtl:
             dbcursor.execute(check_query, (dt,))
@@ -33,6 +33,11 @@ def populate_events_table(dbcursor, year, month, day, start_hour, end_hour, num_
 
     end_query = "UPDATE events SET end = DATE_ADD(start, INTERVAL 30 minute)"
     dbcursor.execute(end_query)
+
+def is_reserved(dbcursor, dt, uid):
+    check_query = "SELECT id FROM events WHERE start=? AND uid IS NOT NULL"
+    dbcursor.execute(check_query, (dt,))
+    
 
 # these are the settings for Winter 2018
 year = 2018

@@ -18,7 +18,7 @@ to create the users and events tables
     (id int unsigned not null auto_increment,
     start DATETIME not null,
     end DATETIME null,
-    uid smallint unsigned,
+    uid smallint unsigned null,
     PRIMARY KEY (id),
     FOREIGN KEY (uid) REFERENCES users(id));
 
