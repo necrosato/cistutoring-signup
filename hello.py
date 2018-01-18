@@ -15,6 +15,18 @@ mysql.init_app(app)
 
 conn = mysql.connect()
 cursor = conn.cursor()
+
+## these are the settings for Spring 2018
+#year = 2018
+#month = 4
+#day = 2
+#start_hour = 8
+#end_hour = 20
+#num_days = (10*7)
+#weekends = False
+#populate_events_table(cursor, year, month, day, start_hour, end_hour, num_days, weekends)
+
+
  
 @app.route("/")
 @app.route("/index")
