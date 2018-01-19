@@ -1,7 +1,8 @@
 from flask import Flask, render_template
 from flaskext.mysql import MySQL
 
-from check_functions import *
+from users_functions import *
+from events_functions import *
 
 app = Flask(__name__)
 mysql = MySQL()
@@ -47,6 +48,7 @@ def sqltest():
     cursor.execute(query)
     print(valid_user(cursor, 'nsato@cistutoring.com'))
     print(valid_password(cursor, 'nicholasyanez@icloud.com', 'goodpassword'))
+    print(is_reserved(cursor, '2018-10-10 12:30:00', 1))
     return "SQL TEST"
 
 if __name__ == "__main__":
