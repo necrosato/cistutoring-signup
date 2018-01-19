@@ -35,8 +35,14 @@ def reserve():
 def sqltest():
     dtt = "2018-3-16 19:30:00"
     #set_winter_schedule(cursor) # this works
+    query = "SELECT * from events WHERE uid is null"
+    cursor.execute(query)
+    rows = cursor.fetchall()
+    res = ''
+    for row in rows:
+        res = res + str(row) + "\r\n"
     conn.commit() # this is important to save changes to the db, must include
-    return "SQL TEST"
+    return res
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=9000)
