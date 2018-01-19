@@ -33,10 +33,11 @@ def reserve():
 
 @app.route("/sqltest")
 def sqltest():
-    dtt = "2018-3-16 19:30:00"
+    dtt = "2018-1-15 00:00:00"
+    dtt2 = "2018-1-22 00:00:00"
     #set_winter_schedule(cursor) # this works
-    query = "SELECT * from events WHERE uid is null"
-    cursor.execute(query)
+    query = "SELECT * from events WHERE start BETWEEN %s AND %s"
+    cursor.execute(query, (dtt, dtt2,))
     rows = cursor.fetchall()
     res = ''
     for row in rows:
