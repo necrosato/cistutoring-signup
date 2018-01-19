@@ -121,21 +121,23 @@ def populate_spring(dbcursor):
     weekends = False
     populate_events_table(dbcursor, year, month, day, start_hour, start_minute, end_hour, end_minute, num_days, weekends)
 
-def week_begin_string():
-    now = datetime.now()
-    td = (now.weekday() + 1) % 7
-    week_begin = now - timedelta(days=td)
-    return week_begin.strftime('%Y-%m-%d 00:00:00')
-    
-def week_end_string():
-    now = datetime.now()
-    td = 6 - ((now.weekday() + 1) % 7)
-    week_end = now + timedelta(days=td)
-    return week_end.strftime('%Y-%m-%d 23:59:59')
+def week_begin(dt):
+    td = (dt.weekday() + 1) % 7
+    return (dt - timedelta(days=td))
 
-def get_this_week_events(dbcursor):
-    st = week_begin_string()
-    en = week_end_string()
+def week_begin_string(dt):
+    return week_begin(dt).strftime('%Y-%m-%d 00:00:00')
+    
+def week_end(dt):
+    td = 6 - ((dt.weekday() + 1) % 7)
+    return (dt + timedelta(days=td))
+
+def week_end_string(dt):
+    return week_end(dt).strftime('%Y-%m-%d 23:59:59')
+
+def get_week_events(dbcursor, dt):
+    st = week_begin_string(dt)
+    en = week_end_string(dt)
     query = "SELECT * from events WHERE start BETWEEN %s AND %s"
     dbcursor.execute(query, (st, en,))
     rows = dbcursor.fetchall()
