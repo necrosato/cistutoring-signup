@@ -108,17 +108,36 @@ def set_winter_schedule(dbcursor):
     event_unreserve_range(dbcursor, year, month, day+3, 18, 0, 20, 0, num_days, False, True)
     event_unreserve_range(dbcursor, year, month, day+4, 17, 0, 20, 0, num_days, False, True)
     
-
-
 def populate_spring(dbcursor):
     # these are the settings for Spring 2018
     year = 2018
     month = 4
     day = 2
     start_hour = 8
+    start_minute = 0
     end_hour = 20
+    end_minute = 0
     num_days = (10*7)
     weekends = False
     populate_events_table(dbcursor, year, month, day, start_hour, start_minute, end_hour, end_minute, num_days, weekends)
 
+def week_begin_string():
+    now = datetime.now()
+    td = (now.weekday() + 1) % 7
+    week_begin = now - timedelta(days=td)
+    return week_begin.strftime('%Y-%m-%d 00:00:00')
+    
+def week_end_string():
+    now = datetime.now()
+    td = 6 - ((now.weekday() + 1) % 7)
+    week_end = now + timedelta(days=td)
+    return week_end.strftime('%Y-%m-%d 23:59:59')
+
+def get_this_week_events(dbcursor):
+    st = week_begin_string()
+    en = week_end_string()
+    query = "SELECT * from events WHERE start BETWEEN %s AND %s"
+    dbcursor.execute(query, (st, en,))
+    rows = dbcursor.fetchall()
+    return rows
 

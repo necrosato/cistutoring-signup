@@ -36,9 +36,7 @@ def sqltest():
     dtt = "2018-1-15 00:00:00"
     dtt2 = "2018-1-22 00:00:00"
     #set_winter_schedule(cursor) # this works
-    query = "SELECT * from events WHERE start BETWEEN %s AND %s"
-    cursor.execute(query, (dtt, dtt2,))
-    rows = cursor.fetchall()
+    rows = get_this_week_events(cursor)
     res = ''
     for row in rows:
         res = res + str(row) + "\r\n"
