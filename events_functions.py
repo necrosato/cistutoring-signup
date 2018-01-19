@@ -34,15 +34,32 @@ def populate_events_table(dbcursor, year, month, day, start_hour, end_hour, num_
     end_query = "UPDATE events SET end = DATE_ADD(start, INTERVAL 30 minute)"
     dbcursor.execute(end_query)
 
-def is_reserved(dbcursor, dt, uid):
-    check_query = "SELECT id FROM events WHERE start=%s AND uid=%s"
-    dbcursor.execute(check_query, (dt,uid,))
+def is_unreserved(dbcursor, dt):
+    check_query_null = "SELECT id FROM events WHERE start=%s AND uid is null"
+    dbcursor.execute(check_query_null, (dt,))
     rows = dbcursor.fetchall()
     if (len(rows) == 1):
         return True
     else:
         return False
-    
+ 
+def is_reserved(dbcursor, dt, uid = None):
+    check_query = "SELECT id FROM events WHERE start=%s AND uid=%s"
+    check_query_null = "SELECT id FROM events WHERE start=%s AND uid is not null"
+    dbcursor.execute(check_query_null, (dt,)) if uid == None else dbcursor.execute(check_query, (dt,uid,))
+    rows = dbcursor.fetchall()
+    if (len(rows) == 1):
+        return True
+    else:
+        return False
+
+def event_unreserve(dbcursor, dt):
+    query = "UPDATE events SET uid = null WHERE start = %s"
+    dbcursor.execute(query, (dt,))
+
+def event_reserve(dbcursor, dt, uid):
+    query = "UPDATE events SET uid = %s WHERE start = %s"
+    dbcursor.execute(query, (uid, dt,))
 
 def populate_winter(dbcursor):
     # these are the settings for Winter 2018

@@ -15,3 +15,8 @@ def valid_password(dbcursor, user, password):
         return True
     else:
         return False
+
+def user_change_password(dbcursor, user, password):
+    query = "UPDATE users SET password = PASSWORD(%s) WHERE email = %s"
+    dbcursor.execute(query, (password,user,))
+
