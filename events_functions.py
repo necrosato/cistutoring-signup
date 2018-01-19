@@ -6,12 +6,12 @@ def datetime_range(start, end, delta):
         yield current
         current += delta
 
-def datetime_range_strings(year, month, day, start_hour, end_hour, num_days, weekends=True):
-    first_date = datetime(year, month, day, start_hour)
+def datetime_range_strings(year, month, day, start_hour, start_minute, end_hour, end_minute, num_days, weekends=True, weekly=False):
+    first_date = datetime(year, month, day, start_hour, start_minute)
     dts = []
     for i in range(num_days):
-        start_date = first_date + timedelta(days=i)
-        end_date = start_date + timedelta(hours=(end_hour - start_hour))
+        start_date = (first_date) + (timedelta(days=i) if weekly == False else timedelta(days=(7*i)))
+        end_date = start_date + timedelta(hours=(end_hour - start_hour)) + timedelta(minutes=(end_minute - start_minute))
         if (weekends == False and (start_date.weekday() > 4)):
             continue;
 
@@ -20,8 +20,8 @@ def datetime_range_strings(year, month, day, start_hour, end_hour, num_days, wee
                timedelta(minutes=30))])
     return dts
 
-def populate_events_table(dbcursor, year, month, day, start_hour, end_hour, num_days, weekends=True):
-    dts = datetime_range_strings(year, month, day, start_hour, end_hour, num_days, weekends)
+def populate_events_table(dbcursor, year, month, day, start_hour, start_minute, end_hour, end_minute, num_days, weekends=True):
+    dts = datetime_range_strings(year, month, day, start_hour, start_minute, end_hour, end_minute, num_days, weekends)
 
     check_query = "SELECT id FROM events WHERE start=%s"
     query = "INSERT INTO events (start) VALUES (%s)"
@@ -61,16 +61,53 @@ def event_reserve(dbcursor, dt, uid):
     query = "UPDATE events SET uid = %s WHERE start = %s"
     dbcursor.execute(query, (uid, dt,))
 
+def event_unreserve_range(dbcursor, year, month, day, start_hour, start_minute, end_hour, end_minute, num_days, weekends=True, weekly=False):
+    dts = datetime_range_strings(year, month, day, start_hour, start_minute, end_hour, end_minute, num_days, weekends, weekly)
+    for dtl in dts:
+        for dt in dtl:
+            if (is_reserved(dbcursor, dt)):
+                event_unreserve(dbcursor, dt)
+
+def event_reserve_range(dbcursor, uid, year, month, day, start_hour, start_minute, end_hour, end_minute, num_days, weekends=True, weekly=False):
+    dts = datetime_range_strings(year, month, day, start_hour, start_minute, end_hour, end_minute, num_days, weekends, weekly)
+    for dtl in dts:
+        for dt in dtl:
+            if (is_unreserved(dbcursor, dt)):
+                event_reserve(dbcursor, dt, uid)
+
+
 def populate_winter(dbcursor):
     # these are the settings for Winter 2018
     year = 2018
     month = 1
     day = 8
     start_hour = 8
+    start_minute = 0
     end_hour = 20
+    end_minute = 0
     num_days = (10*7) #10 weeks in a term
     weekends = False
-    populate_events_table(dbcursor, year, month, day, start_hour, end_hour, num_days, weekends)
+    populate_events_table(dbcursor, year, month, day, start_hour, start_minute, end_hour, end_minute, num_days, weekends)
+
+def set_winter_schedule(dbcursor):
+     # these are the settings for Winter 2018
+    year = 2018
+    month = 1
+    day = 8
+    start_hour = 8
+    start_minute = 0
+    end_hour = 20
+    end_minute= 30
+    num_days = 70
+    
+    populate_winter(dbcursor)
+    event_reserve_range(dbcursor, 1, year, month, day, start_hour, start_minute, end_hour, end_minute, num_days, False)
+    event_unreserve_range(dbcursor, year, month, day, 18, 0, 20, 0, num_days, False, True)
+    event_unreserve_range(dbcursor, year, month, day+1, 18, 0, 20, 0, num_days, False, True)
+    event_unreserve_range(dbcursor, year, month, day+2, 14, 0, 15, 30, num_days, False, True)
+    event_unreserve_range(dbcursor, year, month, day+3, 18, 0, 20, 0, num_days, False, True)
+    event_unreserve_range(dbcursor, year, month, day+4, 17, 0, 20, 0, num_days, False, True)
+    
 
 
 def populate_spring(dbcursor):
@@ -82,6 +119,6 @@ def populate_spring(dbcursor):
     end_hour = 20
     num_days = (10*7)
     weekends = False
-    populate_events_table(dbcursor, year, month, day, start_hour, end_hour, num_days, weekends)
+    populate_events_table(dbcursor, year, month, day, start_hour, start_minute, end_hour, end_minute, num_days, weekends)
 
 

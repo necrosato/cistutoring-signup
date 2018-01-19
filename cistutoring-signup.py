@@ -33,10 +33,8 @@ def reserve():
 
 @app.route("/sqltest")
 def sqltest():
-    print(is_unreserved(cursor, "2018-3-16 19:30:00"))
-    event_reserve(cursor, "2018-3-16 19:30:00", 1)
-    print(is_reserved(cursor, "2018-3-16 19:30:00"))
-    user_change_password(cursor, "nicholasyanez@icloud.com","goodpassword")
+    dtt = "2018-3-16 19:30:00"
+    #set_winter_schedule(cursor) # this works
     conn.commit() # this is important to save changes to the db, must include
     return "SQL TEST"
 
