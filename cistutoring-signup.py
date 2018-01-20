@@ -1,5 +1,6 @@
 from flask import Flask, render_template
 from flaskext.mysql import MySQL
+from flask_table import Table, Col
 from datetime import datetime, timedelta
 
 from users_functions import *
@@ -18,7 +19,22 @@ mysql.init_app(app)
 conn = mysql.connect()
 cursor = conn.cursor()
 
- 
+class TimeTable(Table):
+    time = Col('Time')
+    mon = Col('Monday')
+    tue = Col('Tuesday')
+    wed = Col('Wednesday')
+    thu = Col('Thursday')
+    fri = Col('Friday')
+class TableRow(object):
+    def __init__(self,time,mon,tue,wed,thu,fri):
+        self.time = time
+        self.mon = mon
+        self.tue = tue
+        self.wed = wed
+        self.thu = thu
+        self.fri = fri
+
 @app.route("/")
 @app.route("/index")
 def hello():
@@ -34,18 +50,19 @@ def reserve():
 
 @app.route("/sqltest")
 def sqltest():
-    dtt = "2018-1-15 00:00:00"
-    dtt2 = "2018-1-22 00:00:00"
-    #set_winter_schedule(cursor) # this works
     rows = get_week_events(cursor, datetime.today()+timedelta(weeks=1))
-    res = ''
-    for row in rows:
-        if row[3]==None:
-            res = res + "AVA: " + row[1].strftime('%Y-%m-%d %H:%M:%S') + "<br>"
-        else:
-            res = res + "RES: " +  row[1].strftime('%Y-%m-%d %H:%M:%S') + "<br>"
+    trs = [[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]]
+    for i in range(len(rows)):
+        trs[i%24].append(("  OPEN  " if rows[i][3]==None else "  RSVD  "))
+    trsn = []
+    r = 0
+    for tr in trs:
+        trsn.append(TableRow(rows[r][1].strftime('%H:%M:%S'), *tr))
+        r+=1
+
     conn.commit() # this is important to save changes to the db, must include
-    return res
+    return (TimeTable(trsn).__html__())
+
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=9000)
