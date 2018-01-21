@@ -128,11 +128,30 @@ def week_end(dt):
 def week_end_string(dt):
     return week_end(dt).strftime('%Y-%m-%d 23:59:59')
 
+def day_begin_string(dt):
+    return dt.strftime('%Y-%m-%d 00:00:00')
+
+def day_end_string(dt):
+    return dt.strftime('%Y-%m-%d 23:59:59')
+
+def get_day_events(dbcursor, dt):
+    query = "SELECT * FROM events WHERE start BETWEEN %s AND %s"
+    start_s = day_begin_string(dt)
+    end_s = day_end_string(dt)
+    dbcursor.execute(query, (start_s, end_s,))
+    return dbcursor.fetchall()
+
 def get_week_events(dbcursor, dt):
-    st = week_begin_string(dt)
-    en = week_end_string(dt)
-    query = "SELECT * from events WHERE start BETWEEN %s AND %s"
-    dbcursor.execute(query, (st, en,))
-    rows = dbcursor.fetchall()
-    return rows
+    st = week_begin(dt)
+    days = []
+    for i in range(7):
+        days.append(get_day_events(dbcursor, st+timedelta(days=i)))
+    return days
+
+def get_user_future_events(dbcursor, uid):
+    query = "SELECT * FROM events WHERE uid = %s AND start > %s"
+    now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    dbcursor.execute(query, (uid, now,))
+    return dbcursor.fetchall()
+
 

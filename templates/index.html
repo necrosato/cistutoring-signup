@@ -29,6 +29,17 @@
             </tr>
         </table>
 
+        <div>
+        {% for day in days %}
+            <div>
+            {% for event in day %}
+                <div>
+                {{ event[1].strftime('%I:%M %p') }}
+                </div>
+            {% endfor %}
+            </div>
+        {% endfor %}
+        </div>
 
         <table border="1">
             <tr>
@@ -45,7 +56,7 @@
             <tr>
                 <td>8:00 am</td>
                 <td >{{ m8 }}</td>
-                <td ></td>
+                <td >{{ t8 }}</td>
                 <td ></td>
                 <td ></td>
                 <td ></td>
