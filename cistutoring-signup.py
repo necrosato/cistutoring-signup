@@ -33,22 +33,22 @@ class TableRow(object):
         self.fri = fri
 
 @app.route("/")
-@app.route("/index")
-def hello():
+@app.route("/signin")
+def signin():
+    return render_template('signin.html')
+
+@app.route("/schedule")
+def schedule():
     conn = mysql.connect()
     cursor = conn.cursor()
-    days = get_week_events(cursor, datetime.today()+timedelta(weeks=1))
-    conn.commit() # this is important to save changes to the db, must include
+    days = get_week_events(cursor, datetime.today()+timedelta(weeks=0))
     conn.close()
-    return render_template('index.html',days=days)
+    return render_template('schedule.html',days=days)
 
 @app.route("/signup")
 def signup():
     return render_template('signup.html')
  
-@app.route("/reserve")
-def reserve():
-    return "Here is where a new tutee can reserve"
 
 @app.route("/sqltest")
 def sqltest():
