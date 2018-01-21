@@ -27,16 +27,27 @@
 
         <div class="container">
         <div class="row">
+        <!--<div class="col-xs-10">
+        <div class="row">-->
         {% for day in days %}
             <div class="col-md-1">
             {% for event in day %}
-                {% if event[3] != None %} <div class="row" style="background-color:red;"> {% endif %}
-                {% if event[3] == None %} <div class="row" style="background-color:green;"> {% endif %}
-                {{ event[1].strftime('%I:%M %p') }}
-                </div>
+                {% if event[3] != None %} 
+                    <div class="row" style="background-color:red;"> 
+                    {{ event[1].strftime('%I:%M %p') }}
+                    </div>
+                {% endif %}
+                {% if event[3] == None %} 
+                    <div class="row" style="background-color:green;">
+                        {{ event[1].strftime('%I:%M %p') }}
+                      <!--  <input type="checkbox" name="reserve" value="yes">Reserve
+                        <input type="checkbox" name="weekly" value="yes">Weekly -->
+                    </div>
+                {% endif %}
             {% endfor %}
-            </div>
         {% endfor %}
+        </div>
+        </div>
         </div>
         </div>
     </div>
