@@ -43,7 +43,10 @@ def schedule():
     cursor = conn.cursor()
     days = get_week_events(cursor, datetime.today()+timedelta(weeks=0))
     conn.close()
-    return render_template('schedule.html',days=days[1:6])
+
+    ws = week_begin(datetime.today()).strftime('%Y-%m-%d')
+    we = week_end(datetime.today()).strftime('%Y-%m-%d')
+    return render_template('schedule.html',days=days[1:6], week_start=ws, week_end=we)
 
 @app.route("/signup")
 def signup():
@@ -55,7 +58,7 @@ def sqltest():
     conn = mysql.connect()
     cursor = conn.cursor()
 
-    #events = datetime_range_strings(2018, 1, 22, 18, 0, 19, 0, 1)
+    #events = datetime_range_strings(2018, 1, 23, 18, 0, 19, 0, 1)
     #event_reserve_range(cursor, 1, events)
     #days = get_week_events(cursor, datetime.today()+timedelta(weeks=1))
     #trs = [[] for i in range(24)]
