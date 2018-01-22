@@ -17,36 +17,35 @@ app.config['MYSQL_DATABASE_DB'] = 'cistutoring'
 app.config['MYSQL_DATABASE_HOST'] = 'localhost'
 mysql.init_app(app)
 
-
-class TimeTable(Table):
-    mon = Col('Monday')
-    tue = Col('Tuesday')
-    wed = Col('Wednesday')
-    thu = Col('Thursday')
-    fri = Col('Friday')
-class TableRow(object):
-    def __init__(self,mon,tue,wed,thu,fri):
-        self.mon = mon
-        self.tue = tue
-        self.wed = wed
-        self.thu = thu
-        self.fri = fri
-
-@app.route("/")
 @app.route("/signin")
 def signin():
     return render_template('signin.html')
 
+display_weeknum = 0
+@app.route("/")
 @app.route("/schedule")
 def schedule():
     conn = mysql.connect()
     cursor = conn.cursor()
-    days = get_week_events(cursor, datetime.today()+timedelta(weeks=0))
+    tdelt = timedelta(weeks=display_weeknum)
+    dt = datetime.today()+tdelt
+    days = get_week_events(cursor, dt)
     conn.close()
 
-    ws = week_begin(datetime.today()).strftime('%Y-%m-%d')
-    we = week_end(datetime.today()).strftime('%Y-%m-%d')
+    ws = week_begin(dt).strftime('%Y-%m-%d')
+    we = week_end(dt).strftime('%Y-%m-%d')
     return render_template('schedule.html',days=days[1:6], week_start=ws, week_end=we)
+
+@app.route("/week-next")
+def schedule_week_next():
+    global display_weeknum
+    display_weeknum+=1
+    return schedule()
+@app.route("/week-prev")
+def schedule_week_prev():
+    global display_weeknum
+    display_weeknum-=1
+    return schedule()
 
 @app.route("/signup")
 def signup():
@@ -61,18 +60,10 @@ def sqltest():
     #events = datetime_range_strings(2018, 1, 23, 18, 0, 19, 0, 1)
     #event_reserve_range(cursor, 1, events)
     #days = get_week_events(cursor, datetime.today()+timedelta(weeks=1))
-    #trs = [[] for i in range(24)]
-    #for day in days:
-    #    for i in range(len(day)):
-    #        trs[i].append((day[i][1].strftime('%I:%M %p')+("-  OPEN  -" if day[i][3]==None else "-  RSVD  -")))
-    #trsn = []
-    #for tr in trs:
-    #    trsn.append(TableRow(*tr))
 
     conn.commit() # this is important to save changes to the db, must include
     conn.close()
-    #return (TimeTable(trsn).__html__())
-    return "booked"
+    return schedule()
 
 
 if __name__ == "__main__":
