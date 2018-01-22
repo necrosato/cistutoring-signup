@@ -43,7 +43,7 @@ def schedule():
     cursor = conn.cursor()
     days = get_week_events(cursor, datetime.today()+timedelta(weeks=0))
     conn.close()
-    return render_template('schedule.html',days=days)
+    return render_template('schedule.html',days=days[1:6])
 
 @app.route("/signup")
 def signup():
@@ -54,18 +54,22 @@ def signup():
 def sqltest():
     conn = mysql.connect()
     cursor = conn.cursor()
-    days = get_week_events(cursor, datetime.today()+timedelta(weeks=1))
-    trs = [[] for i in range(24)]
-    for day in days:
-        for i in range(len(day)):
-            trs[i].append((day[i][1].strftime('%I:%M %p')+("-  OPEN  -" if day[i][3]==None else "-  RSVD  -")))
-    trsn = []
-    for tr in trs:
-        trsn.append(TableRow(*tr))
+
+    #events = datetime_range_strings(2018, 1, 22, 18, 0, 19, 0, 1)
+    #event_reserve_range(cursor, 1, events)
+    #days = get_week_events(cursor, datetime.today()+timedelta(weeks=1))
+    #trs = [[] for i in range(24)]
+    #for day in days:
+    #    for i in range(len(day)):
+    #        trs[i].append((day[i][1].strftime('%I:%M %p')+("-  OPEN  -" if day[i][3]==None else "-  RSVD  -")))
+    #trsn = []
+    #for tr in trs:
+    #    trsn.append(TableRow(*tr))
 
     conn.commit() # this is important to save changes to the db, must include
     conn.close()
-    return (TimeTable(trsn).__html__())
+    #return (TimeTable(trsn).__html__())
+    return "booked"
 
 
 if __name__ == "__main__":

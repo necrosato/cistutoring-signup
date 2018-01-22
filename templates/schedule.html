@@ -3,9 +3,19 @@
 <html>
     <head>
         <title>CIS Tutoring Schedule</title>
-    <link href="{{ url_for('static', filename='font-awesome.min.css') }}" rel="stylesheet">
-    <link href="{{ url_for('static', filename='ugly.css') }}" rel="stylesheet">
-    <link href="{{ url_for('static', filename='bootstrap.min.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/font-awesome.min.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/ugly.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
+    <script src="{{ url_for('static', filename='js/jquery-3.3.1.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+    <style>
+        .open-cell {
+            background-color: green;
+        }
+        .closed-cell {
+            background-color: red;
+        }
+    </style>
 
     </head>
 
@@ -25,23 +35,31 @@
         <h1>CIS Tutoring Winter Schedule</h1>
         <a href="http://www.stilldrinking.org/programming-sucks">Why this page isnt completed...yet</a>
 
-        <div class="container">
+        <div class="container-fluid">
         <div class="row">
         <!--<div class="col-xs-10">
         <div class="row">-->
         {% for day in days %}
-            <div class="col-md-1">
+            <div class="col-sm-2">
             {% for event in day %}
                 {% if event[3] != None %} 
-                    <div class="row" style="background-color:red;"> 
-                    {{ event[1].strftime('%I:%M %p') }}<br>
+                    <div class="row"> 
+                    <div class="closed-cell">
+                    <p>
+                        {{ event[1].strftime('%I:%M %p') }}<br><br>
+                    </p>
+                    </div>
                     </div>
                 {% endif %}
                 {% if event[3] == None %} 
-                    <div class="row" style="background-color:green;">
+                    <div class="row"> 
+                    <div class="open-cell">
+                    <p>
                         {{ event[1].strftime('%I:%M %p') }}<br>
                         <input type="checkbox" name="reserve" value="yes">Reserve
                         <input type="checkbox" name="weekly" value="yes">Weekly
+                    </p>
+                    </div>
                     </div>
                 {% endif %}
             {% endfor %}
