@@ -32,6 +32,8 @@ def signin():
             if (valid_user(cursor, request.form['inputEmail']) and 
             valid_password(cursor, request.form['inputEmail'], request.form['inputPassword'])):
                 session['logged_in']=True
+                session['user_id']=user_get_id(cursor, request.form['inputEmail'])
+                print(session['user_id'])
                 return redirect(url_for('schedule'))
     return render_template('signin.html')
 
@@ -48,7 +50,7 @@ def schedule():
                 conn.close()
                 ws = week_begin(dt).strftime('%Y-%m-%d')
                 we = week_end(dt).strftime('%Y-%m-%d')
-                return render_template('schedule.html',days=days[1:6], week_start=ws, week_end=we)
+                return render_template('schedule.html', session=session, days=days[1:6], week_start=ws, week_end=we)
             else:
                 session['display_weeknum']=0
                 return schedule()
