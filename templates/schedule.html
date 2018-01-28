@@ -43,20 +43,22 @@
         <form action="/week-next" method="get"><input type="submit" value="Next Week"></form>
         <div class="container-fluid">
         <div class="row">
-        <!--<div class="col-xs-10">
-        <div class="row">-->
+        <form action="/update_schedule" method="post">
         {% for day in days %}
             <div class="col-sm-2">
             {% for event in day %}
+            {% if session['user_priv'] == 0 %}
                 {% if event[3] != None and event[3] != session['user_id'] %} 
                     <div class="row"> 
                     <div class="closed-cell">
                     <p>
                         <br>{{ event[1].strftime('%I:%M %p') }} - {{ event[2].strftime('%I:%M %p') }}
                     </p>
-                    <select>
-                        <option value="Unavailable">Unavailable</option>
+                    <select name="{{ event[0] }}">
+                        <option value="">Unavailable</option>
                     </select>
+                    <p><br>
+                    </p>
                     </div>
                     </div>
                 {% endif %}
@@ -66,10 +68,13 @@
                     <p>
                         <br>{{ event[1].strftime('%I:%M %p') }} - {{ event[2].strftime('%I:%M %p') }}
                     </p>
-                    <select>
+                    <select name="{{ event[0] }}">
                         <option value="">Reserved</option>
                         <option value="unreserve">Unreserve</option>
                     </select>
+                    <p> {{ session['user_name'] }}<br>
+                    </p>
+
                     </div>
                     </div>
                 {% endif %}
@@ -79,19 +84,72 @@
                     <p>
                         <br>{{ event[1].strftime('%I:%M %p') }} - {{ event[2].strftime('%I:%M %p') }}
                     </p>
-                    <select>
+                    <select name="{{ event[0] }}">
                         <option value="">Available</option>
                         <option value="reserve_once">Reserve</option>
-                        <option value="reserve_weekly">Reserve Weekly</option>
+                        <!-- <option value="reserve_weekly">Reserve Weekly</option> -->
                     </select>
+                    <p><br>
+                    </p>
                     </div>
                     </div>
                 {% endif %}
+            {% endif %}
+            {% if session['user_priv'] == 1 %}
+                {% if event[3] == session['user_id'] %} 
+                    <div class="row"> 
+                    <div class="closed-cell">
+                    <p>
+                        <br>{{ event[1].strftime('%I:%M %p') }} - {{ event[2].strftime('%I:%M %p') }}
+                    </p>
+                    <select name="{{ event[0] }}">
+                        <option value="">Unavailable</option>
+                        <option value="unreserve">Unreserve</option>
+                    </select>
+                    <p><br>
+                    </p>
+                    </div>
+                    </div>
+                {% endif %}
+                {% if event[3] != None and event[3] != session['user_id'] %} 
+                    <div class="row"> 
+                    <div class="reserved-cell">
+                    <p>
+                        <br>{{ event[1].strftime('%I:%M %p') }} - {{ event[2].strftime('%I:%M %p') }}
+                    </p>
+                    <select name="{{ event[0] }}">
+                        <option value="">Reserved</option>
+                        <option value="unreserve">Unreserve</option>
+                        <option value="reserve_once">Reserve</option>
+                    </select>
+                    <p> {{ names_dict[event[3]] }}<br>
+                    </p>
+                    </div>
+                    </div>
+                {% endif %}
+                {% if event[3] == None %} 
+                    <div class="row"> 
+                    <div class="open-cell">
+                    <p>
+                        <br>{{ event[1].strftime('%I:%M %p') }} - {{ event[2].strftime('%I:%M %p') }}
+                    </p>
+                    <select name="{{ event[0] }}">
+                        <option value="">Available</option>
+                        <option value="reserve_once">Reserve</option>
+                    <!--    <option value="reserve_weekly">Reserve Weekly</option> -->
+                    </select>
+                    <p><br>
+                    </p>
+                    </div>
+                    </div>
+                {% endif %}
+            {% endif %}
+
             {% endfor %}
             </div>
         {% endfor %}
-        <!-- </div>
-        </div> -->
+        <button id="btnReserve" class="btn btn-lg btn-primary btn-block" type="submit">Sumbmit Changes</button>
+        </form>
         </div>
         </div>
  

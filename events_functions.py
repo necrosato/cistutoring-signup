@@ -39,7 +39,16 @@ def is_unreserved(dbcursor, dts):
     if (len(rows) == 1):
         return True
     return False
+
+def is_unreserved_id(dbcursor, event_id):
+    check_query_null = "SELECT id FROM events WHERE id=%s AND uid is null"
+    dbcursor.execute(check_query_null, (event_id,))
+    rows = dbcursor.fetchall()
+    if (len(rows) == 1):
+        return True
+    return False
  
+
 def is_reserved(dbcursor, dts, uid = None):
     check_query = "SELECT id FROM events WHERE start=%s AND uid=%s"
     check_query_null = "SELECT id FROM events WHERE start=%s AND uid is not null"
@@ -49,13 +58,30 @@ def is_reserved(dbcursor, dts, uid = None):
         return True
     return False
 
+def is_reserved_id(dbcursor, event_id, uid = None):
+    check_query = "SELECT id FROM events WHERE id=%s AND uid=%s"
+    check_query_null = "SELECT id FROM events WHERE id=%s AND uid is not null"
+    dbcursor.execute(check_query_null, (event_id,)) if uid == None else dbcursor.execute(check_query, (event_id,uid,))
+    rows = dbcursor.fetchall()
+    if (len(rows) == 1):
+        return True
+    return False
+
 def event_unreserve(dbcursor, dts):
     query = "UPDATE events SET uid = null WHERE start = %s"
     dbcursor.execute(query, (dts,))
 
+def event_unreserve_id(dbcursor, event_id):
+    query = "UPDATE events SET uid = null WHERE id = %s"
+    dbcursor.execute(query, (event_id,))
+
 def event_reserve(dbcursor, dts, uid):
     query = "UPDATE events SET uid = %s WHERE start = %s"
     dbcursor.execute(query, (uid, dts,))
+
+def event_reserve_id(dbcursor, event_id, uid):
+    query = "UPDATE events SET uid = %s WHERE id = %s"
+    dbcursor.execute(query, (uid, event_id,))
 
 def event_unreserve_range(dbcursor, dtsll):
     for dtsl in dtsll:
@@ -63,11 +89,21 @@ def event_unreserve_range(dbcursor, dtsll):
             if (is_reserved(dbcursor, dts)):
                 event_unreserve(dbcursor, dts)
 
+def event_unreserve_range_id(dbcursor, idl):
+    for event_id in idl:
+        if (is_reserved_id(dbcursor, event_id)):
+            event_unreserve_id(dbcursor, event_id)
+
 def event_reserve_range(dbcursor, uid, dtsll):
     for dtsl in dtsll:
         for dts in dtsl:
-            if (is_unreserved(dbcursor, dts)):
+            if is_unreserved(dbcursor, dts):
                 event_reserve(dbcursor, dts, uid)
+
+def event_reserve_range_id(dbcursor, uid, idl):
+    for event_id in idl:
+        if is_unreserved_id(dbcursor, event_id):
+            event_reserve_id(dbcursor, event_id, uid)
 
 def set_winter_schedule(dbcursor):
      # these are the settings for Winter 2018

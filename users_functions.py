@@ -16,11 +16,17 @@ def valid_password(dbcursor, user, password):
     else:
         return False
 
-def user_get_id(dbcursor, user):
-    query = "SELECT id FROM users WHERE email = %s"
+def user_get(dbcursor, user):
+    query = "SELECT * FROM users WHERE email = %s"
     dbcursor.execute(query, (user,))
     rows = dbcursor.fetchall()
-    return rows[0][0]
+    return rows[0]
+
+def user_get_names(dbcursor):
+    query = "SELECT id, name FROM users"
+    dbcursor.execute(query)
+    rows = dbcursor.fetchall()
+    return rows
     
 
 def user_change_password(dbcursor, user, password):
