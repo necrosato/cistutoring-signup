@@ -21,7 +21,6 @@ app.config['MYSQL_DATABASE_HOST'] = 'localhost'
 #RECAPTCHA_PRIVATE_KEY="6Leey0IUAAAAAA7EG-eQxdeGewiSuKPzuvEzQKIZ"
 mysql.init_app(app)
 
-@app.route("/")
 @app.route("/signin", methods=['GET', 'POST'])
 def signin():
     if request.method == "POST":
@@ -39,30 +38,28 @@ def signin():
                 session['user_email']=user[2]
                 session['user_phone']=user[3]
                 session['user_priv']=user[4]
+                session['display_weeknum']=0
                 return redirect(url_for('schedule'))
     return render_template('signin.html')
 
+@app.route("/")
 @app.route("/schedule")
 def schedule():
     if 'logged_in' in session:
         if session['logged_in']==True:
-            if 'display_weeknum' in session:
-                conn = mysql.connect()
-                cursor = conn.cursor()
-                tdelt = timedelta(weeks=session['display_weeknum'])
-                dt = datetime.today()+tdelt
-                days = get_week_events(cursor, dt)
-                names = user_get_names(cursor)
-                names_dict = {}
-                for name in names:
-                    names_dict[name[0]]=name[1]
-                conn.close()
-                ws = week_begin(dt).strftime('%Y-%m-%d')
-                we = week_end(dt).strftime('%Y-%m-%d')
-                return render_template('schedule.html', session=session, days=days[1:6], week_start=ws, week_end=we, names_dict=names_dict)
-            else:
-                session['display_weeknum']=0
-                return schedule()
+            conn = mysql.connect()
+            cursor = conn.cursor()
+            tdelt = timedelta(weeks=session['display_weeknum'])
+            dt = datetime.today()+tdelt
+            days = get_week_events(cursor, dt)
+            names = user_get_names(cursor)
+            names_dict = {}
+            for name in names:
+                names_dict[name[0]]=name[1]
+            conn.close()
+            ws = week_begin(dt).strftime('%Y-%m-%d')
+            we = week_end(dt).strftime('%Y-%m-%d')
+            return render_template('schedule.html', session=session, days=days[1:6], week_start=ws, week_end=we, names_dict=names_dict)
     return redirect(url_for('signin'))
         
 
@@ -84,8 +81,6 @@ def schedule_modify():
                         event_reserve_id(cursor, val, session['user_id'])
                     elif request.form[val] == 'unreserve':
                         event_unreserve_id(cursor, val)
-                    elif request.form[val] == 'reserve_once':
-                        event_reserve_id(cursor, val, session['user_id'])
             conn.commit()                
             conn.close()
     return redirect(url_for('schedule'))
@@ -124,15 +119,15 @@ def signup():
             return "Successful sign up!"
     return render_template('signup.html')
 
-@app.route("/test")
-def dylan():
+@app.route("/some_shit")
+def some_shit():
     conn = mysql.connect()
     cursor = conn.cursor()
-    days = datetime_range_strings(2018, 2, 1, 18, 0, 19, 0, 49, False, True)
-    event_reserve_range(cursor, 5, days)
+    #days = datetime_range_strings(2018, 1, 29, 17, 0, 18, 0, 1, weekends=False, weekly=True)
+    #event_reserve_range(cursor, 4, days, force=True)
     conn.commit()
     conn.close()
-    return "reserved dylan"
+    return "some_shit"
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=9000)

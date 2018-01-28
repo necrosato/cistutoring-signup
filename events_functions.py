@@ -94,16 +94,22 @@ def event_unreserve_range_id(dbcursor, idl):
         if (is_reserved_id(dbcursor, event_id)):
             event_unreserve_id(dbcursor, event_id)
 
-def event_reserve_range(dbcursor, uid, dtsll):
+def event_reserve_range(dbcursor, uid, dtsll, force=False):
     for dtsl in dtsll:
         for dts in dtsl:
-            if is_unreserved(dbcursor, dts):
+            if force == False:
+                if is_unreserved(dbcursor, dts):
+                    event_reserve(dbcursor, dts, uid)
+            else:
                 event_reserve(dbcursor, dts, uid)
 
-def event_reserve_range_id(dbcursor, uid, idl):
+def event_reserve_range_id(dbcursor, uid, idl, force=False):
     for event_id in idl:
         if is_unreserved_id(dbcursor, event_id):
-            event_reserve_id(dbcursor, event_id, uid)
+            if force == False:
+                event_reserve_id(dbcursor, event_id, uid)
+            else:
+                event_reserve_id(dbcursor, event_id, uid)
 
 def set_winter_schedule(dbcursor):
      # these are the settings for Winter 2018
