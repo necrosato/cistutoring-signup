@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 import os
-from flask import Flask, render_template, session, redirect, escape, request, url_for
+import math
+from flask import Flask, render_template, session, redirect, escape, request, url_for, flash
 from flaskext.mysql import MySQL
 #from flask_wtf import RecaptchaField
 from datetime import datetime, timedelta
@@ -21,6 +22,8 @@ app.config['MYSQL_DATABASE_HOST'] = 'localhost'
 #RECAPTCHA_PRIVATE_KEY="6Leey0IUAAAAAA7EG-eQxdeGewiSuKPzuvEzQKIZ"
 mysql.init_app(app)
 
+term_end=datetime(2018, 3, 17, 23, 59, 59)
+
 @app.route("/signin", methods=['GET', 'POST'])
 def signin():
     if request.method == "POST":
@@ -30,8 +33,8 @@ def signin():
             cursor = conn.cursor()
             if (valid_user(cursor, request.form['inputEmail']) and 
             valid_password(cursor, request.form['inputEmail'], request.form['inputPassword'])):
-
                 user = user_get(cursor, request.form['inputEmail'])
+                conn.close()
                 session['logged_in']=True
                 session['user_id']=user[0]
                 session['user_name']=user[1]
@@ -75,12 +78,82 @@ def schedule_modify():
                         event_reserve_id(cursor, val, session['user_id'])
                     elif is_reserved_id(cursor, val, session['user_id']) and request.form[val] == 'unreserve':
                         event_unreserve_id(cursor, val)
+                    elif request.form[val] == 'reserve_weekly':
+                        target = get_event_fromid(cursor, val)
+                        target_time = target[1].timetuple()
+                        target_end_time = target[2].timetuple()
+                        future_length = math.ceil((term_end-target[1]).days/7)
+                        future_strings = datetime_range_strings(target_time[0], target_time[1], target_time[2], target_time[3], target_time[4], target_end_time[3], target_end_time[4], future_length, weekends=False, weekly=True)
+                        future = get_weekly_events(cursor, future_strings)
+                        future_available = []
+                        future_unavailable = []
+                        for day in future:
+                            day_avail = []
+                            day_unavail = []
+                            for event in day:
+                                if event[3] == None:
+                                    day_avail.append(event)
+                                else:
+                                    day_unavail.append(event)
+                            if len(day_avail) > 0:
+                                future_available.append(day_avail)
+                            if len(day_unavail) > 0:
+                                future_unavailable.append(day_unavail)
+                        for day_avail in future_available:
+                            for event in day_avail:
+                                event_reserve_id(cursor, event[0], session['user_id'])
+                    elif request.form[val] == 'unreserve_weekly':
+                        target = get_event_fromid(cursor, val)
+                        target_time = target[1].timetuple()
+                        target_end_time = target[2].timetuple()
+                        future_length = math.ceil((term_end-target[1]).days/7)
+                        future_strings = datetime_range_strings(target_time[0], target_time[1], target_time[2], target_time[3], target_time[4], target_end_time[3], target_end_time[4], future_length, weekends=False, weekly=True)
+                        future = get_weekly_events(cursor, future_strings)
+                        future_owned = []
+                        future_not_owned = []
+                        for day in future:
+                            day_owned = []
+                            day_not_owned = []
+                            for event in day:
+                                if event[3] == session['user_id']:
+                                    day_owned.append(event)
+                                else:
+                                    day_not_owned.append(event)
+                            if len(day_owned) > 0:
+                                future_owned.append(day_owned)
+                            if len(day_not_owned) > 0:
+                                future_not_owned.append(day_not_owned)
+                        for day_owned in future_owned:
+                            for event in day_owned:
+                                event_unreserve_id(cursor, event[0])
+                    
             elif session['user_priv'] == 1:
                 for val in request.form:
                     if request.form[val] == 'reserve_once':
                         event_reserve_id(cursor, val, session['user_id'])
                     elif request.form[val] == 'unreserve':
                         event_unreserve_id(cursor, val)
+                    elif request.form[val] == 'unreserve_weekly':
+                        target = get_event_fromid(cursor, val)
+                        target_time = target[1].timetuple()
+                        target_end_time = target[2].timetuple()
+                        future_length = math.ceil((term_end-target[1]).days/7)
+                        future_strings = datetime_range_strings(target_time[0], target_time[1], target_time[2], target_time[3], target_time[4], target_end_time[3], target_end_time[4], future_length, weekends=False, weekly=True)
+                        future = get_weekly_events(cursor, future_strings)
+                        for day in future:
+                            for event in day:
+                                event_unreserve_id(cursor, event[0])
+                    elif request.form[val] == 'reserve_weekly':
+                        target = get_event_fromid(cursor, val)
+                        target_time = target[1].timetuple()
+                        target_end_time = target[2].timetuple()
+                        future_length = math.ceil((term_end-target[1]).days/7)
+                        future_strings = datetime_range_strings(target_time[0], target_time[1], target_time[2], target_time[3], target_time[4], target_end_time[3], target_end_time[4], future_length, weekends=False, weekly=True)
+                        future = get_weekly_events(cursor, future_strings)
+                        for day in future:
+                            for event in day:
+                                event_reserve_id(cursor, event[0], session['user_id'])
+
             conn.commit()                
             conn.close()
     return redirect(url_for('schedule'))
