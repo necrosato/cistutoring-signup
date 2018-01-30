@@ -70,8 +70,10 @@
                     </p>
                     <select name="{{ event[0] }}">
                         <option value="">Reserved</option>
+                    {% if event[4] == True %}
                         <option value="unreserve">Unreserve</option>
                         <option value="unreserve_weekly">Unreserve Weekly</option>
+                    {% endif %}
                     </select>
                     <p> {{ session['user_name'] }}<br>
                     </p>
@@ -87,8 +89,10 @@
                     </p>
                     <select name="{{ event[0] }}">
                         <option value="">Available</option>
+                    {% if event[4] == True %}
                         <option value="reserve_once">Reserve</option>
                         <option value="reserve_weekly">Reserve Weekly</option>
+                    {% endif %}
                     </select>
                     <p><br>
                     </p>

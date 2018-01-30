@@ -54,7 +54,18 @@ def schedule():
             cursor = conn.cursor()
             tdelt = timedelta(weeks=session['display_weeknum'])
             dt = datetime.today()+tdelt
-            days = get_week_events(cursor, dt)
+            daystups = get_week_events(cursor, dt)
+            days = []
+            for daytup in daystups:
+                d = [list(e) for e in daytup]
+                days.append(d)
+            tlim = datetime.now() + timedelta(days=1)
+            for day in days:
+                for event in day:
+                    if event[1] > tlim:
+                        event.append(True)
+                    else:
+                        event.append(False)
             names = user_get_names(cursor)
             names_dict = {}
             for name in names:
@@ -166,7 +177,8 @@ def schedule_week_next():
 @app.route("/week-prev")
 def schedule_week_prev():
     if 'display_weeknum' in session:
-        session['display_weeknum']-=1
+        if session['display_weeknum'] > 0:
+            session['display_weeknum']-=1 
     return redirect(url_for('schedule'))
 
 @app.route("/signup", methods=['GET', 'POST'])
@@ -189,7 +201,7 @@ def signup():
                 user_create(cursor, name, email, passw, phone)
                 conn.commit()                
             conn.close()
-            return "Successful sign up!"
+            return redirect(url_for('signin'))
     return render_template('signup.html')
 
 @app.route("/some_shit")
