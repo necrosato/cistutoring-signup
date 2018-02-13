@@ -3,7 +3,6 @@ import os
 import math
 from flask import Flask, render_template, session, redirect, escape, request, url_for, flash
 from flaskext.mysql import MySQL
-#from flask_wtf import RecaptchaField
 from datetime import datetime, timedelta
 
 from users_functions import *
@@ -18,8 +17,6 @@ app.config['MYSQL_DATABASE_USER'] = 'cistutoring'
 app.config['MYSQL_DATABASE_PASSWORD'] = 'cistutoring'
 app.config['MYSQL_DATABASE_DB'] = 'cistutoring'
 app.config['MYSQL_DATABASE_HOST'] = 'localhost'
-#RECAPTCHA_PUBLIC_KEY="6Leey0IUAAAAAFnE1Uf4QQsbkLfn1HYb17IwMzNj"
-#RECAPTCHA_PRIVATE_KEY="6Leey0IUAAAAAA7EG-eQxdeGewiSuKPzuvEzQKIZ"
 mysql.init_app(app)
 
 term_end=datetime(2018, 3, 17, 23, 59, 59)
